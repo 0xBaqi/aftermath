@@ -1,4 +1,4 @@
-import { createPublicClient, http, parseAbi } from 'viem';
+import { createPublicClient, fallback, http, parseAbi } from 'viem';
 import { mainnet } from 'viem/chains';
 import type { Address, Hash, Hex } from 'viem';
 import { decodePermissionLog, validateTransactionHash } from './decode';
@@ -17,7 +17,16 @@ export interface AnalysisClient {
 
 export function createEthereumClient(rpcUrl = process.env.ETHEREUM_RPC_URL) {
   if (!rpcUrl) throw new Error('ETHEREUM_RPC_URL is required.');
-  return createPublicClient({ chain: mainnet, transport: http(rpcUrl, { timeout: 10_000, retryCount: 0 }) });
+
+  // The configured provider stays primary. Public fallbacks keep the demo usable
+  // when a free-tier RPC is temporarily rate-limited or unavailable.
+  const transport = fallback([
+    http(rpcUrl, { timeout: 10_000, retryCount: 0 }),
+    http('https://ethereum-rpc.publicnode.com', { timeout: 10_000, retryCount: 0 }),
+    http('https://cloudflare-eth.com', { timeout: 10_000, retryCount: 0 }),
+  ]);
+
+  return createPublicClient({ chain: mainnet, transport });
 }
 
 export async function detectOperatorStandard(client: AnalysisClient, contract: Address, blockNumber: bigint): Promise<'ERC721' | 'ERC1155' | 'UNKNOWN'> {
