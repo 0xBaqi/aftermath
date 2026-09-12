@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.tsbuildinfo
+coverage/
+
+# Deployment metadata and local artifacts
+.vercel/
+out/
+dist/
+work/
+outputs/
+*.log
+*.pem
+*.key
+.DS_Store
+Thumbs.db
