@@ -18,11 +18,13 @@ export interface AnalysisClient {
 export function createEthereumClient(rpcUrl = process.env.ETHEREUM_RPC_URL) {
   if (!rpcUrl) throw new Error('ETHEREUM_RPC_URL is required.');
 
-  // The configured provider stays primary. Public fallbacks keep the demo usable
-  // when a free-tier RPC is temporarily rate-limited or unavailable.
+  // Prefer a public full-history endpoint for transaction/receipt lookups. Some
+  // free-tier configured providers can return "not found" for older hashes,
+  // which is an application-level response and may not trigger viem fallback.
+  // Keep the configured provider and Cloudflare as availability fallbacks.
   const transport = fallback([
-    http(rpcUrl, { timeout: 10_000, retryCount: 0 }),
     http('https://ethereum-rpc.publicnode.com', { timeout: 10_000, retryCount: 0 }),
+    http(rpcUrl, { timeout: 10_000, retryCount: 0 }),
     http('https://cloudflare-eth.com', { timeout: 10_000, retryCount: 0 }),
   ]);
 
