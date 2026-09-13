@@ -1,4 +1,4 @@
-import { AnalysisStageError, analyzeTransactionWithResidualAuthority } from '../../../src/analysis/analyze';
+import { AnalysisStageError } from '../../../src/analysis/analyze';
 import { analyzeTransactionWithResidualAuthority as analyzeResidual } from '../../../src/analysis/residual';
 import { validateTransactionHash } from '../../../src/analysis/decode';
 
